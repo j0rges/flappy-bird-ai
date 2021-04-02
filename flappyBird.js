@@ -1,9 +1,9 @@
 
 addEventListener("load",game);
 
-//this will contain all the game logic and objects.
+// this will contain all the game logic and objects.
 function game(){
-  //Initialize a few variables.
+  // Initialize global variables.
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext('2d');
   ctx.font = "50px Arial";
@@ -13,6 +13,9 @@ function game(){
   let speed = -2.5;
   let passed = false;
   let paused = false;
+  let bird;
+  let c1;
+  let c2;
 
   // class for the bird object.
   class Bird {
@@ -23,6 +26,7 @@ function game(){
           this.speedY = 0,
           this.gravity = 0.5
       }
+      // draw bird in the canvas as a filled circle.
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
@@ -31,6 +35,8 @@ function game(){
         ctx.closePath()
       }
       keepInCanvas() {
+        // make sure it doesn't leave the canvas on the left or right.
+        // this is redundant since the x position of the bird doesn't change.
         var w = width - this.radius;
         if (this.x > w) {
           this.x = w;
@@ -38,6 +44,7 @@ function game(){
         if (this.x < this.radius){
           this.x = this.radius;
         }
+        // make sure it doesn't go above or below the canvas.
         var h = height - this.radius;
         if (this.y > h) {
           this.y = h;
@@ -46,9 +53,11 @@ function game(){
           this.y = this.radius;
         }
       }
+      // change the speed to simulate a jump.
       jump() {
         this.speedY = -8;
       }
+      // Update after one step in time.
       update() {
         this.speedY += this.gravity;
         this.y += this.speedY;
@@ -66,6 +75,7 @@ function game(){
       this.y = height - this.height;
       this.x = pos + this.width;
     }
+    // draw the column in the canvas as a rectangle.
     draw() {
       ctx.beginPath();
       ctx.rect(this.x,height - this.height,this.width,this.height);
@@ -73,37 +83,36 @@ function game(){
       ctx.fillStyle = this.colour;
       ctx.fill();
     }
+    // Update after one step in time.
     update() {
       this.x += speed;
       this.draw();
     }
   }
 
-  //initialize two initial column variables.
-  let c1 = new Column(100,width);
-  let c2 = new Column(200,c1.x + distance);
-  let count = 0;
-  // initialize bird
-  let bird = new Bird()
-
-  //the game logic goes here.
+  // Update the game at each step in time.
   function update(){
     if(!paused){
+      // If the column at the front has left the screen.
       if(c1.x < ( - c1.width)){
         c1 = c2;
         c2 = new Column(100 + (Math.random() * 210), c2.x + distance);
-        speed -= 0.15;
+        // increase the speed of the columns up to a limit.
+        if(speed > -6) {
+            speed -= 0.15;
+        }
         passed = false;
       }
+      // add one to the score if a column was just passed.
       if (c1.x + c1.width/2 < width/2 ) {
         if(!passed){
           count += 1;
           passed = true;
         }
       }
-      if (gameLost()) {
+      if (gameLost(bird, c1)) {
         console.log("crash!!");
-        //start game after half a second.
+        // start game after half a second.
         setTimeout(function () {addEventListener("keypress",start);},500);
       } else {
         clearCanvas();
@@ -116,64 +125,65 @@ function game(){
     }
   }
 
+  // display score.
   function drawCount(){
     ctx.fillStyle = "black";
     ctx.fillText(count.toString(), 20, 60);
   }
 
+  // find distance between two points.
   function pythag(cateto1,cateto2){
     return Math.sqrt(Math.pow(cateto1, 2) + Math.pow(cateto2, 2));
   }
 
-  //return true if the bird collides with a column.
-  function gameLost(){
-    //Check if the bird is within range to crash.
-    if ((bird.x > (c1.x - bird.radius)) && (bird.x < (c1.x + c1.width + bird.radius))) {
-      //Divide the area in three:
-      //before the column
-      if (bird.x < (c1.x)) {
+  // Check if the bird has collided the column.
+  function gameLost(bird, column){
+    // Check if the bird is within range to crash.
+    if ((bird.x > (column.x - bird.radius)) && (bird.x < (column.x + column.width + bird.radius))) {
+      // Divide the area in three:
+      // before the column
+      if (bird.x < (column.x)) {
         //check if collided with walls above or beneath.
-        if (bird.y > c1.y || bird.y < c1.y - c1.space) {
+        if (bird.y > column.y || bird.y < column.y - column.space) {
           return true;
         }
-        //Check if collided with the corners on the front.
-        //corner beneath:
-        if (pythag(Math.abs(bird.x-c1.x),Math.abs(bird.y-c1.y)) < bird.radius) {
+        // Check if collided with the corners on the front.
+        // corner beneath:
+        if (pythag(Math.abs(bird.x-column.x),Math.abs(bird.y-column.y)) < bird.radius) {
           return true;
         }
-        //corner above:
-        if(pythag(Math.abs(bird.x-c1.x),Math.abs(bird.y-(c1.y-c1.space))) < bird.radius){
+        // corner above:
+        if(pythag(Math.abs(bird.x-column.x),Math.abs(bird.y-(column.y-column.space))) < bird.radius){
           return true;
         }
-        //If it hasn't collided:
         return false;
       }
-      //after the column
-      else if (bird.x > c1.x + c1.width) {
-        //check if collided with walls above or beneath.
-        if (bird.y > c1.y || bird.y < c1.y - c1.space) {
+      // after the column
+      else if (bird.x > column.x + column.width) {
+        // check if collided with walls above or beneath the gap.
+        if (bird.y > column.y || bird.y < column.y - column.space) {
           return true;
         }
-        //Check if collided with the corners on the front.
-        //corner beneath:
-        if (pythag(Math.abs(bird.x-(c1.x+c1.width)),Math.abs(bird.y-c1.y)) < bird.radius) {
+        // collision with bottom corner of the gap:
+        if (pythag(Math.abs(bird.x-(column.x+column.width)),Math.abs(bird.y-column.y)) < bird.radius) {
           return true;
         }
-        //corner above:
-        if(pythag(Math.abs(bird.x-(c1.x+c1.width)),Math.abs(bird.y-(c1.y-c1.space))) < bird.radius){
+        // collision with top corner of the gap:
+        if(pythag(Math.abs(bird.x-(column.x+column.width)),Math.abs(bird.y-(column.y-column.space))) < bird.radius){
           return true;
         }
-        //If it hasn't collided:
         return false;
       }
       //under the column.
       else {
-        return ((bird.y > c1.y - bird.radius) || (bird.y < c1.y - c1.space + bird.radius));
+        // check whether the bird has collided with the top or the bottom og the column.
+        return ((bird.y > column.y - bird.radius) || (bird.y < column.y - column.space + bird.radius));
       }
     }
     return false;
   }
 
+  // pause the game.
   function pause(){
     if (paused == false) {
       paused = true;
@@ -188,7 +198,7 @@ function game(){
     ctx.clearRect(0,0,width,height);
   }
 
-  //positive modulus.
+  // positive modulus.
   function modulus(a,b){
     if (a >= 0) return (a % b);
     if (b <= 0) return (-b + (a % b));
@@ -199,12 +209,12 @@ function game(){
   }
 
   function keypress(e){
-    //if pressed space bar.
+    // Jump when space bar is pressed.
     if (e.keyCode == 32) {
       if(!paused) bird.jump();
       else pause();
     }
-    //if pressed "p".
+    // Pause when "p" key is pressed.
     else if (e.keyCode == 112){
       pause();
     }
@@ -212,12 +222,12 @@ function game(){
 
   function start(e){
     if (e.keyCode == 32) {
-      //remove event listener
+      // remove event listener to start the game.
       removeEventListener("keypress",start);
       initializeVariables();
-      //jump when you press space bar:
+      // Add event listener for keyboard interactions.
       addEventListener("keypress",keypress);
-      //start the game.
+      // start the game.
       window.requestAnimationFrame(update);
     }
   }
@@ -226,52 +236,18 @@ function game(){
     speed = -2.5;
     passed = false;
     paused = false;
-    bird = {
-      radius : 20,
-      x : width/2,
-      y : height/2,
-      speedY : 0,
-      gravity : 0.5,
-      draw : function () {
-        ctx.beginPath();
-        ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2, false);
-        ctx.fillStyle = "#DDDD44";
-        ctx.fill();
-        ctx.closePath()
-      },
-      keepInCanvas : function () {
-        var w = width - bird.radius;
-        if (bird.x > w) {
-          bird.x = w;
-        } else
-        if (bird.x < bird.radius){
-          bird.x = bird.radius;
-        }
-        var h = height - bird.radius;
-        if (bird.y > h) {
-          bird.y = h;
-        } else
-        if (bird.y < bird.radius){
-          bird.y = bird.radius;
-        }
-      },
-      jump : function () {
-        bird.speedY = -8;
-      },
-      update : function () {
-        bird.speedY += bird.gravity;
-        bird.y += bird.speedY;
-        bird.keepInCanvas();
-        bird.draw();
-      }
-    };
+    // initialize two initial column variables.
     c1 = new Column(100,width);
     c2 = new Column(200,c1.x + distance);
     count = 0;
+    // initialize bird.
+    bird = new Bird()
   }
 
-  //start game
+  // Start the game when space bar is pressed.
   addEventListener("keypress",start);
+  // initialize bird.
+  bird = new Bird()
   //draw the bird and count.
   bird.draw();
   drawCount();
