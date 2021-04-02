@@ -14,47 +14,48 @@ function game(){
   let passed = false;
   let paused = false;
 
-
-  //the object for the bird.
-  let bird = {
-    radius : 20,
-    x : width/2,
-    y : height/2,
-    speedY : 0,
-    gravity : 0.5,
-    draw : function () {
-      ctx.beginPath();
-      ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2, false);
-      ctx.fillStyle = "#DDDD44";
-      ctx.fill();
-      ctx.closePath()
-    },
-    keepInCanvas : function () {
-      var w = width - bird.radius;
-      if (bird.x > w) {
-        bird.x = w;
-      } else
-      if (bird.x < bird.radius){
-        bird.x = bird.radius;
+  // class for the bird object.
+  class Bird {
+      constructor() {
+          this.radius = 20,
+          this.x = width/2,
+          this.y = height/2,
+          this.speedY = 0,
+          this.gravity = 0.5
       }
-      var h = height - bird.radius;
-      if (bird.y > h) {
-        bird.y = h;
-      } else
-      if (bird.y < bird.radius){
-        bird.y = bird.radius;
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        ctx.fillStyle = "#DDDD44";
+        ctx.fill();
+        ctx.closePath()
       }
-    },
-    jump : function () {
-      bird.speedY = -8;
-    },
-    update : function () {
-      bird.speedY += bird.gravity;
-      bird.y += bird.speedY;
-      bird.keepInCanvas();
-      bird.draw();
-    }
-  };
+      keepInCanvas() {
+        var w = width - this.radius;
+        if (this.x > w) {
+          this.x = w;
+        } else
+        if (this.x < this.radius){
+          this.x = this.radius;
+        }
+        var h = height - this.radius;
+        if (this.y > h) {
+          this.y = h;
+        } else
+        if (this.y < this.radius){
+          this.y = this.radius;
+        }
+      }
+      jump() {
+        this.speedY = -8;
+      }
+      update() {
+        this.speedY += this.gravity;
+        this.y += this.speedY;
+        this.keepInCanvas();
+        this.draw();
+      }
+  }
 
   class Column {
     constructor(h,pos){
@@ -82,6 +83,8 @@ function game(){
   let c1 = new Column(100,width);
   let c2 = new Column(200,c1.x + distance);
   let count = 0;
+  // initialize bird
+  let bird = new Bird()
 
   //the game logic goes here.
   function update(){
