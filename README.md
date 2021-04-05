@@ -23,6 +23,16 @@ You can use the space bar to jump and the key 'p' to pause the game. You resume
 by pressing either the space bar or 'p' again. After you lose just press the
 space bar to start again.
 
+## Tests
+
+There isn't really any tests yet, but I plan to use [Jest](https://jestjs.io/)
+to do some simple unit testing. The tests are located in './tests' and can be run
+as follows:
+
+```bash
+node --experimental-vm-modules node_modules/.bin/jest
+```
+
 ## Lincense
 
 [MIT](https://choosealicense.com/licenses/mit/)
