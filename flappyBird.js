@@ -13,6 +13,7 @@ function game(){
   let speed = -2.5;
   let passed = false;
   let paused = false;
+  let count = 0;
   let bird;
   let c1;
   let c2;
