@@ -4,6 +4,7 @@ export default class Player {
     constructor(weights) {
         this.weights = this.format_weights(weights);
         this.params = weights;
+        this.score = 0;
     }
     // choose whether to jump or not. 1 is jump 0 is don't.
     decide_action(state) {
@@ -22,5 +23,8 @@ export default class Player {
             matrix[i] = weights.slice(2*i, 2*(i+1));
         }
         return matrix;
+    }
+    get_params() {
+        return matrix.flatten(this.weights);
     }
 }

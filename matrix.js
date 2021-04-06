@@ -80,3 +80,8 @@ export function normalize_rows(A) {
     }
     return A;
 }
+
+// take an array of arrays and concatenate them.
+export function flatten(array) {
+    return array.reduce((result, arr) => result.concat(arr), []);
+}
