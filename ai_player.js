@@ -7,7 +7,7 @@ export default class Player {
     }
     // choose whether to jump or not. 1 is jump 0 is don't.
     decide_action(state) {
-        // state = [x distance top, x distance bottom, y distance, x speed, y speed]
+        // state = [y distance top, y distance bottom, x distance, y speed, x speed, bias]
         let results = matrix.multiply(this.weights,[state]);
         if(results[0][0] > results[0][1]){
             return 1;

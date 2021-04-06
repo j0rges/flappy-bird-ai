@@ -1,9 +1,11 @@
+import Player from './ai_player.js';
 
 addEventListener("load",game);
 
 // this will contain all the game logic and objects.
 function game(){
   // Initialize global variables.
+  const code_to_char = String.fromCharCode;
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext('2d');
   ctx.font = "50px Arial";
@@ -17,6 +19,7 @@ function game(){
   let bird;
   let c1;
   let c2;
+  let player;
 
   // class for the bird object.
   class Bird {
@@ -92,7 +95,7 @@ function game(){
   }
 
   // Update the game at each step in time.
-  function update(){
+  function update(frame_callback){
     if(!paused){
       // If the column at the front has left the screen.
       if(c1.x < ( - c1.width)){
@@ -121,10 +124,13 @@ function game(){
         c1.update();
         c2.update();
         drawCount();
-        window.requestAnimationFrame(update);
+        window.requestAnimationFrame(frame_callback);
       }
     }
   }
+
+  // update with callback for interactive form:
+  let update_interactive = () => update(update_interactive)
 
   // display score.
   function drawCount(){
@@ -191,7 +197,7 @@ function game(){
       //draw the pause symbol.
     } else {
       paused = false;
-      window.requestAnimationFrame(update);
+      window.requestAnimationFrame(update_interactive);
     }
   }
 
@@ -211,25 +217,68 @@ function game(){
 
   function keypress(e){
     // Jump when space bar is pressed.
-    if (e.keyCode == 32) {
+    if (code_to_char(e.keyCode) == " ") {
       if(!paused) bird.jump();
       else pause();
     }
     // Pause when "p" key is pressed.
-    else if (e.keyCode == 112){
+    else if (code_to_char(e.keyCode).toLowerCase() == "p"){
       pause();
     }
   }
 
-  function start(e){
-    if (e.keyCode == 32) {
-      // remove event listener to start the game.
-      removeEventListener("keypress",start);
+  //return the state of the game for the ai_player.
+  function game_state(bird, column) {
+      let y_bottom = height - column.height; // bottom limit of column gap.
+      let y_top = y_bottom - column.space; // top limit of column gap.
+      return [y_top - bird.y, y_bottom - bird.y, column.x - bird.x,
+           bird.speedY, speed, 1];
+  }
+
+  // Let the ai_player perform jump in this frame if it wants.
+  function ai_player_action(player, bird) {
+      // get the state for the bird with respect to the next column.
+      let state = (c1.x + c1.width > bird.x - bird.radius) ? (game_state(bird,c1)) : (game_state(bird,c2));
+      // get the action from the player.
+      let action = player.decide_action(state);
+      if(action > 0) {
+          bird.jump();
+      }
+      // if 1, do keypress(32) ie press space bar.
+  }
+
+  function start_interactive(e){
+    if (code_to_char(e.keyCode) == " ") {
       initializeVariables();
       // Add event listener for keyboard interactions.
       addEventListener("keypress",keypress);
       // start the game.
-      window.requestAnimationFrame(update);
+      window.requestAnimationFrame(() => update(update_interactive));
+    }
+  }
+
+  function update_ai() {
+      update(update_ai);
+      ai_player_action(player, bird);
+  }
+
+  function start_ai(e) {
+      initializeVariables();
+      // initialize Player
+      player = new Player([-0.01,1,-1,0,0,0,0,0,0,0,0,0]);
+      // start the game.
+      window.requestAnimationFrame(update_ai);
+  }
+
+  function start(e) {
+      if (code_to_char(e.keyCode) == " ") {
+        // remove event listener to start the game.
+        removeEventListener("keypress",start);
+        start_interactive(e);
+    } else {
+        // remove event listener to start the game.
+        removeEventListener("keypress",start);
+        start_ai(e);
     }
   }
 
