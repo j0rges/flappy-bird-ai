@@ -16,10 +16,10 @@ function game(){
   let passed = false;
   let paused = false;
   let count = 0;
-  let bird;
+  let interactive = 1;
   let c1;
   let c2;
-  let player;
+  let players, birds, dead;
 
   // class for the bird object.
   class Bird {
@@ -94,9 +94,7 @@ function game(){
     }
   }
 
-  // Update the game at each step in time.
-  function update(frame_callback){
-    if(!paused){
+  function update_columns() {
       // If the column at the front has left the screen.
       if(c1.x < ( - c1.width)){
         c1 = c2;
@@ -107,6 +105,11 @@ function game(){
         }
         passed = false;
       }
+  }
+  // Update the game at each step in time.
+  function update(frame_callback){
+    if(!paused){
+      update_columns();
       // add one to the score if a column was just passed.
       if (c1.x + c1.width/2 < width/2 ) {
         if(!passed){
@@ -114,13 +117,27 @@ function game(){
           passed = true;
         }
       }
-      if (gameLost(bird, c1)) {
-        console.log("crash!!");
-        // start game after half a second.
-        setTimeout(function () {addEventListener("keypress",start);},500);
+      let game_end = true;
+      for(let i = 0; i < dead.length; i++) {
+          if(!dead[i]){
+              if(gameLost(birds[i], c1)) {
+                  if(interactive == 1){
+                      console.log("crash!!");
+                  } else {
+                      dead[i] = true;
+                      players[i].score = count;
+                  }
+              } else {
+                  game_end = false;
+              }
+          }
+      }
+      if(game_end) {
+          // start game after half a second.
+          setTimeout(function () {addEventListener("keypress",start);},500);
       } else {
         clearCanvas();
-        bird.update();
+        birds.map((bird) => bird.update());
         c1.update();
         c2.update();
         drawCount();
@@ -218,7 +235,7 @@ function game(){
   function keypress(e){
     // Jump when space bar is pressed.
     if (code_to_char(e.keyCode) == " ") {
-      if(!paused) bird.jump();
+      if(!paused) birds.map((bird) => bird.jump());
       else pause();
     }
     // Pause when "p" key is pressed.
@@ -249,7 +266,7 @@ function game(){
 
   function start_interactive(e){
     if (code_to_char(e.keyCode) == " ") {
-      initializeVariables();
+      initializeVariables(1);
       // Add event listener for keyboard interactions.
       addEventListener("keypress",keypress);
       // start the game.
@@ -259,13 +276,14 @@ function game(){
 
   function update_ai() {
       update(update_ai);
-      ai_player_action(player, bird);
+      players.forEach((player, i) => ai_player_action(player,birds[i]));
   }
 
   function start_ai(e) {
-      initializeVariables();
+      interactive = 0;
+      initializeVariables(1);
       // initialize Player
-      player = new Player([-0.01,1,-1,0,0,0,0,0,0,0,0,0]);
+      players = dead.map((z) => new Player([-0.01,1,-1,0,0,0,0,0,0,0,0,0]));
       // start the game.
       window.requestAnimationFrame(update_ai);
   }
@@ -282,7 +300,7 @@ function game(){
     }
   }
 
-  function initializeVariables(){
+  function initializeVariables(num_players){
     speed = -2.5;
     passed = false;
     paused = false;
@@ -291,14 +309,15 @@ function game(){
     c2 = new Column(200,c1.x + distance);
     count = 0;
     // initialize bird.
-    bird = new Bird()
+    dead = new Array(num_players).fill(false);
+    birds = dead.map((z) => new Bird());
   }
 
   // Start the game when space bar is pressed.
   addEventListener("keypress",start);
   // initialize bird.
-  bird = new Bird()
+  birds = [new Bird()]
   //draw the bird and count.
-  bird.draw();
+  birds.forEach((bird) => bird.draw());
   drawCount();
 }
