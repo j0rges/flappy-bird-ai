@@ -137,7 +137,8 @@ function game(){
           setTimeout(function () {addEventListener("keypress",start);},500);
       } else {
         clearCanvas();
-        birds.map((bird) => bird.update());
+        // draw living birds
+        birds.forEach((bird, i) => { if(!dead[i]) bird.update();});
         c1.update();
         c2.update();
         drawCount();
@@ -281,9 +282,12 @@ function game(){
 
   function start_ai(e) {
       interactive = 0;
-      initializeVariables(1);
-      // initialize Player
-      players = dead.map((z) => new Player([-0.01,1,-1,0,0,0,0,0,0,0,0,0]));
+      let num_players = 5;
+      initializeVariables(num_players);
+      // initialize Players
+      let num_parameters = 12;
+      let random_parameters = (n) => Array.from(Array(n)).map(x=>Math.random()-0.5)
+      players = dead.map((z) => new Player(random_parameters(num_parameters)));
       // start the game.
       window.requestAnimationFrame(update_ai);
   }
