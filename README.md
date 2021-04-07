@@ -16,12 +16,15 @@ npm ci
 node server.js
 ```
 
-You will be able to find it in [http://localhost:8080/flappyBird.html](http://localhost:8080/flappyBird.html). Note that I have only tested this on Chrome, so
+You will be able to find it in [http://localhost:8080/flappyBird.html](http://localhost:8080/flappyBird.html). Note that I have only tested it on Chrome, so
 I can't make any promises about other browsers.
 
-You can use the space bar to jump and the key 'p' to pause the game. You resume
+Once the page has loaded, press the space bar to start the game and subsequently
+to jump. You can use the key 'p' to pause the game and then resume
 by pressing either the space bar or 'p' again. After you lose just press the
-space bar to start again.
+space bar to start again. Alternatively, instead of pressing the space bar to
+start, you can press any other key for an AI to play. But at the moment this is
+just a dummy player.
 
 ## Tests
 
