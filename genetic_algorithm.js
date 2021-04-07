@@ -31,12 +31,12 @@ function select_parent(parent_array, cdf) {
 // parents must have attribute score and method get_params.
 export function children_parameters(parent_array) {
     // cumulative distribution function to sample the parents.
-    let cdf = cumsum(parent_array,0,(parent) => parent.score);
+    let cdf = cumsum(parent_array,0,(parent) => parent.score + 1);
     let children = [];
     for(let i = 0; i < parent_array.length / 2; i++) {
-        let parent1 = select_parent(parent_arry,cdf).get_params();
-        let parent2 = select_parent(parent_arry,cdf).get_params();
-        children.concat(crossover(parent1,parent2).map(mutate));
+        let parent1 = select_parent(parent_array,cdf).get_params();
+        let parent2 = select_parent(parent_array,cdf).get_params();
+        children = children.concat(crossover(parent1,parent2).map(mutate));
     }
     return children;
 }
