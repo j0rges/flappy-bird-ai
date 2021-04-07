@@ -1,4 +1,5 @@
 import Player from './ai_player.js';
+import {children_parameters} from './genetic_algorithm.js'
 
 addEventListener("load",game);
 
@@ -19,7 +20,7 @@ function game(){
   let interactive = 1;
   let c1;
   let c2;
-  let players, birds, dead;
+  let players, next_gen_params, birds, dead;
 
   // class for the bird object.
   class Bird {
@@ -135,6 +136,10 @@ function game(){
       if(game_end) {
           // start game after half a second.
           setTimeout(function () {addEventListener("keypress",start);},500);
+          if(!interactive) {
+              // get the parameters for the next generation.
+              next_gen_params = children_parameters(players);
+          }
       } else {
         clearCanvas();
         // draw living birds
@@ -282,12 +287,18 @@ function game(){
 
   function start_ai(e) {
       interactive = 0;
-      let num_players = 5;
+      let num_players = 10, num_parameters = 12;
       initializeVariables(num_players);
       // initialize Players
-      let num_parameters = 12;
-      let random_parameters = (n) => Array.from(Array(n)).map(x=>Math.random()-0.5)
-      players = dead.map((z) => new Player(random_parameters(num_parameters)));
+      if(typeof(next_gen_params) == 'undefined') {
+          let random_parameters = (n) => Array.from(Array(n)).map(x=>Math.random()-0.5)
+          players = dead.map((z) => new Player(random_parameters(num_parameters)));
+      } else {
+          console.log('hi');
+          players = next_gen_params.map((params) => new Player(params));
+      }
+      console.log(players);
+
       // start the game.
       window.requestAnimationFrame(update_ai);
   }
