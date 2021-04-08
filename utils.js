@@ -10,3 +10,18 @@ export function get_index(value_array, value) {
     }
     return value_array.length;
 }
+
+// find distance between two points.
+export function pythag(cateto1,cateto2){
+  return Math.sqrt(Math.pow(cateto1, 2) + Math.pow(cateto2, 2));
+}
+
+// positive modulus.
+export function modulus(a,b){
+  if (a >= 0) return (a % b);
+  if (b <= 0) return (-b + (a % b));
+  while (a < 0){
+    a += b;
+  }
+  return a;
+}

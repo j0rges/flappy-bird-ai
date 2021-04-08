@@ -1,5 +1,6 @@
 import Player from './ai_player.js';
-import {children_parameters} from './genetic_algorithm.js'
+import {children_parameters} from './genetic_algorithm.js';
+import {pythag} from "./utils.js";
 
 // this will contain all the game logic and objects.
 export default function game(e, interactive = 1, num_players = 10){
@@ -8,15 +9,11 @@ export default function game(e, interactive = 1, num_players = 10){
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext('2d');
   ctx.font = "50px Arial";
-  let width = canvas.width;
-  let height = canvas.height;
+  let width = canvas.width, height = canvas.height;
   const distance = 200;
-  let speed = -2.5;
-  let passed = false;
-  let paused = false;
-  let count = 0;
-  let c1;
-  let c2;
+  let count = 0, speed = -2.5;
+  let passed = false, paused = false;
+  let c1, c2;
   let players, next_gen_params, birds, dead;
 
   // class for the bird object.
@@ -104,6 +101,7 @@ export default function game(e, interactive = 1, num_players = 10){
         passed = false;
       }
   }
+
   // Update the game at each step in time.
   function update(frame_callback){
     if(!paused){
@@ -156,11 +154,6 @@ export default function game(e, interactive = 1, num_players = 10){
   function drawCount(){
     ctx.fillStyle = "black";
     ctx.fillText(count.toString(), 20, 60);
-  }
-
-  // find distance between two points.
-  function pythag(cateto1,cateto2){
-    return Math.sqrt(Math.pow(cateto1, 2) + Math.pow(cateto2, 2));
   }
 
   // Check if the bird has collided the column.
@@ -223,16 +216,6 @@ export default function game(e, interactive = 1, num_players = 10){
 
   function clearCanvas(){
     ctx.clearRect(0,0,width,height);
-  }
-
-  // positive modulus.
-  function modulus(a,b){
-    if (a >= 0) return (a % b);
-    if (b <= 0) return (-b + (a % b));
-    while (a < 0){
-      a += b;
-    }
-    return a;
   }
 
   function keypress(e){
@@ -314,13 +297,10 @@ export default function game(e, interactive = 1, num_players = 10){
   }
 
   function initializeVariables(num_players){
-    speed = -2.5;
-    passed = false;
-    paused = false;
+    count=0, speed = -2.5;
+    passed = false, paused = false;
     // initialize two initial column variables.
-    c1 = new Column(100,width);
-    c2 = new Column(200,c1.x + distance);
-    count = 0;
+    c1 = new Column(100,width), c2 = new Column(200,c1.x + distance);
     // initialize bird.
     dead = new Array(num_players).fill(false);
     birds = dead.map((z) => new Bird());
