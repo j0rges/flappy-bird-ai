@@ -22,9 +22,12 @@ I can't make any promises about other browsers.
 Once the page has loaded, press the space bar to start the game and subsequently
 to jump. You can use the key 'p' to pause the game and then resume
 by pressing either the space bar or 'p' again. After you lose just press the
-space bar to start again. Alternatively, instead of pressing the space bar to
-start, you can press any other key for an AI to play. But at the moment this is
-just a dummy player.
+space bar to start again.
+
+Alternatively, instead of pressing the space bar to start, you can press any
+other key to start the first generation of AI players. Once they all die, press
+any key except the space bar again to start the next generation. You can always
+play yourself by pressing space bar once a generation has died.
 
 ## Tests
 
