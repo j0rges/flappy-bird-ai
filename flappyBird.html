@@ -6,15 +6,17 @@
     <title>Bird game</title>
     <script type="module" src="flappyBird.js"></script>
     <script type="module" src="main.js"></script>
-    <link rel="stylesheet" href="experiments/game.css"/>
+    <link rel="stylesheet" href="game.css"/>
   </head>
 
   <body>
-    <canvas id="canvas" width="400px" height="500px"></canvas>
-    <form id="button_form">
-        <button type="button" id="play_start">play</button>
-        <button type="button" id="ai_start">train</button>
-    </form>
+    <div class="container">
+        <canvas id="canvas" class="centered" width="400px" height="500px"></canvas>
+        <form id="button_form" class="centered">
+            <button type="button" id="play_start">play</button>
+            <button type="button" id="ai_start">train</button>
+        </form>
+    </div>
   </body>
 
 </html>
