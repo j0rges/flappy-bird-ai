@@ -1,10 +1,8 @@
 import Player from './ai_player.js';
 import {children_parameters} from './genetic_algorithm.js'
 
-addEventListener("load",game);
-
 // this will contain all the game logic and objects.
-function game(){
+export default function game(e, interactive = 1, num_players = 10){
   // Initialize global variables.
   const code_to_char = String.fromCharCode;
   const canvas = document.getElementById("canvas");
@@ -17,7 +15,6 @@ function game(){
   let passed = false;
   let paused = false;
   let count = 0;
-  let interactive = 1;
   let c1;
   let c2;
   let players, next_gen_params, birds, dead;
@@ -135,7 +132,7 @@ function game(){
       }
       if(game_end) {
           // start game after half a second.
-          setTimeout(function () {addEventListener("keypress",start);},500);
+          setTimeout(start(),500);
           if(!interactive) {
               // get the parameters for the next generation.
               next_gen_params = children_parameters(players);
@@ -265,9 +262,9 @@ function game(){
       // get the action from the player.
       let action = player.decide_action(state);
       if(action > 0) {
+          // signal 1 means jump.
           bird.jump();
       }
-      // if 1, do keypress(32) ie press space bar.
   }
 
   function start_interactive(e){
@@ -277,6 +274,7 @@ function game(){
       addEventListener("keypress",keypress);
       // start the game.
       window.requestAnimationFrame(() => update(update_interactive));
+      removeEventListener("keypress",start_interactive);
     }
   }
 
@@ -286,8 +284,7 @@ function game(){
   }
 
   function start_ai(e) {
-      interactive = 0;
-      let num_players = 10, num_parameters = 12;
+      let num_parameters = 12;
       initializeVariables(num_players);
       // initialize Players
       if(typeof(next_gen_params) == 'undefined') {
@@ -301,17 +298,18 @@ function game(){
 
       // start the game.
       window.requestAnimationFrame(update_ai);
+      removeEventListener("keypress",start_ai);
   }
 
-  function start(e) {
-      if (code_to_char(e.keyCode) == " ") {
-        // remove event listener to start the game.
-        removeEventListener("keypress",start);
-        start_interactive(e);
+  function start() {
+      console.log('interactive = ' + interactive);
+      if (interactive == 1) {
+        // add event listener to start the game.
+        addEventListener("keypress",start_interactive);
     } else {
-        // remove event listener to start the game.
-        removeEventListener("keypress",start);
-        start_ai(e);
+        console.log('ai');
+        // add event listener to start the game.
+        addEventListener("keypress",start_ai);
     }
   }
 
@@ -328,11 +326,10 @@ function game(){
     birds = dead.map((z) => new Bird());
   }
 
-  // Start the game when space bar is pressed.
-  addEventListener("keypress",start);
   // initialize bird.
   birds = [new Bird()]
   //draw the bird and count.
   birds.forEach((bird) => bird.draw());
   drawCount();
+  start();
 }
