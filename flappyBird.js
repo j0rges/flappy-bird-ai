@@ -2,6 +2,16 @@ import Player from './ai_player.js';
 import {children_parameters} from './genetic_algorithm.js';
 import {pythag} from "./utils.js";
 
+// get images that will be used in the game.
+const media_prefix = 'media/';
+let pause_img = new Image(), bird_img = new Image(), background_img = new Image(),
+    column_img = new Image(), mirror_column_img = new Image();
+pause_img.src = media_prefix + 'pause.png';
+bird_img.src = media_prefix + 'bird.png';
+background_img.src = media_prefix + 'background.png';
+column_img.src = media_prefix + 'column.png';
+mirror_column_img.src = media_prefix + 'mirror_column.png';
+
 // this will contain all the game logic and objects.
 export default function game(e, interactive = 1, num_players = 10){
   // Initialize global variables.
@@ -27,11 +37,8 @@ export default function game(e, interactive = 1, num_players = 10){
       }
       // draw bird in the canvas as a filled circle.
       draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        ctx.fillStyle = "#DDDD44";
-        ctx.fill();
-        ctx.closePath()
+        let radius = this.radius + 10;
+        ctx.drawImage(bird_img, this.x-radius, this.y-radius, radius*2, radius*2)
       }
       keepInCanvas() {
         // make sure it doesn't leave the canvas on the left or right.
@@ -76,11 +83,12 @@ export default function game(e, interactive = 1, num_players = 10){
     }
     // draw the column in the canvas as a rectangle.
     draw() {
-      ctx.beginPath();
-      ctx.rect(this.x,height - this.height,this.width,this.height);
-      ctx.rect(this.x, 0, this.width, height - this.height - this.space);
-      ctx.fillStyle = this.colour;
-      ctx.fill();
+      // draw bottom column
+      ctx.drawImage(column_img, this.x - 2, height - this.height - 2);
+      // draw top column
+      ctx.rotate(Math.PI);
+      ctx.drawImage(mirror_column_img, - this.x - this.width - 2, -height + this.height + this.space - 2);
+      ctx.rotate(-Math.PI);
     }
     // Update after one step in time.
     update() {
@@ -129,6 +137,7 @@ export default function game(e, interactive = 1, num_players = 10){
           }
       }
       if(game_end) {
+          removeEventListener("keypress",keypress);
           // start game after half a second.
           setTimeout(start(),500);
           if(!interactive) {
@@ -208,6 +217,7 @@ export default function game(e, interactive = 1, num_players = 10){
     if (paused == false) {
       paused = true;
       //draw the pause symbol.
+      ctx.drawImage(pause_img, (width-pause_img.width)/2, (height-pause_img.height)/2);
     } else {
       paused = false;
       window.requestAnimationFrame(update_interactive);
@@ -216,6 +226,7 @@ export default function game(e, interactive = 1, num_players = 10){
 
   function clearCanvas(){
     ctx.clearRect(0,0,width,height);
+    ctx.drawImage(background_img,0,0,width, height)
   }
 
   function keypress(e){
@@ -309,6 +320,7 @@ export default function game(e, interactive = 1, num_players = 10){
   // initialize bird.
   birds = [new Bird()]
   //draw the bird and count.
+  clearCanvas()
   birds.forEach((bird) => bird.draw());
   drawCount();
   start();
