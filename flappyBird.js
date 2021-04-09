@@ -131,9 +131,7 @@ export default function game(e, interactive = 1, num_players = 20){
       for(let i = 0; i < dead.length; i++) {
           if(!dead[i]){
               if(gameLost(birds[i], c1)) {
-                  if(interactive == 1){
-                      console.log("crash!!");
-                  } else {
+                  if(interactive == 0){
                       dead[i] = true;
                       players[i].score = count;
                   }
@@ -291,10 +289,8 @@ export default function game(e, interactive = 1, num_players = 20){
           let random_parameters = (n) => Array.from(Array(n)).map(x=>Math.random()-0.5)
           players = dead.map((z) => new Player(random_parameters(num_parameters)));
       } else {
-          console.log('hi');
           players = next_gen_params.map((params) => new Player(params));
       }
-      console.log(players);
 
       // start the game.
       window.requestAnimationFrame(update_ai);
@@ -302,12 +298,10 @@ export default function game(e, interactive = 1, num_players = 20){
   }
 
   function start() {
-      console.log('interactive = ' + interactive);
       if (interactive == 1) {
         // add event listener to start the game.
         addEventListener("keypress",start_interactive);
     } else {
-        console.log('ai');
         // add event listener to start the game.
         addEventListener("keypress",start_ai);
     }
