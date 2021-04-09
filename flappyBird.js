@@ -13,7 +13,7 @@ column_img.src = media_prefix + 'column.png';
 mirror_column_img.src = media_prefix + 'mirror_column.png';
 
 // this will contain all the game logic and objects.
-export default function game(e, interactive = 1, num_players = 10){
+export default function game(e, interactive = 1, num_players = 20){
   // Initialize global variables.
   const code_to_char = String.fromCharCode;
   const canvas = document.getElementById("canvas");
@@ -35,10 +35,16 @@ export default function game(e, interactive = 1, num_players = 10){
           this.speedY = 0,
           this.gravity = 0.5
       }
-      // draw bird in the canvas as a filled circle.
+      // draw bird in the canvas rotated based on its direction.
       draw() {
         let radius = this.radius + 10;
-        ctx.drawImage(bird_img, this.x-radius, this.y-radius, radius*2, radius*2)
+        let angle = Math.atan(this.speedY/speed);
+        if(angle > 0) angle /= 2;
+        ctx.translate(this.x, this.y);
+        ctx.rotate(-angle);
+        ctx.drawImage(bird_img, -radius, -radius, radius*2, radius*2);
+        ctx.rotate(angle);
+        ctx.translate(-this.x, -this.y);
       }
       keepInCanvas() {
         // make sure it doesn't leave the canvas on the left or right.
@@ -61,7 +67,7 @@ export default function game(e, interactive = 1, num_players = 10){
       }
       // change the speed to simulate a jump.
       jump() {
-        this.speedY = -8;
+        this.speedY = -7;
       }
       // Update after one step in time.
       update() {
